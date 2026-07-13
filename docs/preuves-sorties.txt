@@ -1,0 +1,42 @@
+PREUVES - SORTIES REELLES (genere par validation)
+=================================================
+
+### PREUVE #5 - docker compose ps (2 services healthy)
+NAME                         IMAGE                      COMMAND                  SERVICE    CREATED          STATUS                    PORTS
+nouveaudossier4-api-1        nouveaudossier4-api        "python app.py"          api        31 minutes ago   Up 30 minutes (healthy)   0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
+nouveaudossier4-postgres-1   nouveaudossier4-postgres   "docker-entrypoint.s…"   postgres   31 minutes ago   Up 31 minutes (healthy)   5432/tcp
+
+### PREUVE #2 - schema psql (2 tables + COUNT=5)
+          List of relations
+ Schema |    Name    | Type  | Owner 
+--------+------------+-------+-------
+ public | articles   | table | admin
+ public | categories | table | admin
+(2 rows)
+
+ count 
+-------
+     5
+(1 row)
+
+
+### PREUVE #6 - tests CRUD
+-- health
+{"db":"connectee","statut":"ok"}
+
+-- GET articles
+{"articles":[{"categorie":"Electronique","cree_le":"2026-07-13T03:18:48.943281","description":null,"id":2,"nom":"Barrette RAM 16GB DDR5","prix_unitaire":89.99,"quantite":42,"reference":"RAM-001"},{"categorie":"Peripherique","cree_le":"2026-07-13T03:18:48.943281","description":null,"id":4,"nom":"Clav
+-- POST
+HTTP 201
+-- stats
+{"nb":6,"stock":115,"valeur":15805.38}
+
+
+### PREUVE #8 - docker images (postgres 1.0 + latest)
+ajc479/inventaire-postgres:1.0                                                                        5fbe6cd695e1        627MB          158MB        
+ajc479/inventaire-postgres:latest                                                                     5fbe6cd695e1        627MB          158MB        
+
+### PREUVE #9 - image publique sur Docker Hub (pull anonyme)
+Status: Image is up to date for ajc479/inventaire-postgres:1.0
+docker.io/ajc479/inventaire-postgres:1.0
+"is_private":false
