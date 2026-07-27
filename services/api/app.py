@@ -3,6 +3,8 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
+VERSION = '1.1'
+
 def get_conn():
     return psycopg2.connect(
         host     = os.getenv('POSTGRES_HOST', 'postgres'),
@@ -10,6 +12,8 @@ def get_conn():
         dbname   = os.getenv('POSTGRES_DB',   'inventaire'),
         user     = os.getenv('POSTGRES_USER',  'admin'),
         password = os.getenv('POSTGRES_PASSWORD', ''),
+        # 'prefer' en local (postgres sans TLS), 'require' sur Render.
+        sslmode  = os.getenv('POSTGRES_SSLMODE', 'prefer'),
         cursor_factory=psycopg2.extras.RealDictCursor
     )
 
@@ -102,7 +106,15 @@ def stats():
         ' ROUND(SUM(quantite*prix_unitaire)::numeric, 2) valeur'
         ' FROM articles WHERE actif=TRUE'
     )
-    return jsonify(dict(cur.fetchone()))
+    row = dict(cur.fetchone()); conn.close()
+    return jsonify(row)
+
+# GET /version — version de l'image deployee (Labo 2, etape 10)
+@app.route('/version')
+def version():
+    return jsonify({'version': VERSION, 'auteurs': 'Etudiant1 et Etudiant2'})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.getenv('API_PORT', 5000)))
+    # Render injecte PORT ; en local on garde API_PORT (5000).
+    port = int(os.getenv('PORT') or os.getenv('API_PORT', 5000))
+    app.run(host='0.0.0.0', port=port)

@@ -1,6 +1,9 @@
 .env
 __pycache__/
 *.pyc
+# fichiers temporaires Word
+~WRL*.tmp
+~$*
 .DS_Store
 .pytest_cache/
 .venv/

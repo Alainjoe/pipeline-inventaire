@@ -155,11 +155,11 @@ curl.exe http://localhost:5000/articles     # HUB-001 doit apparaitre
 
 ## Preuves a la charge d'Etudiant 2
 
-| # | Preuve |
-|---|--------|
-| 7 | Ton commit dans l'historique GitHub |
-| 8 | `docker images` image api `:1.0` + `:latest` |
-| 9 | Page Docker Hub `inventaire-api` (tags visibles) |
-| 10 | `docker compose up` depuis dossier vide (pull des 2 images) |
-| 11 | `docker compose ps` distant + curl health/articles/stats |
-| 12 | POST `HUB-001` + GET confirmant sa presence |
+| #   | Preuve                                                      |
+| --- | ----------------------------------------------------------- |
+| 7   | Ton commit dans l'historique GitHub                         |
+| 8   | `docker images` image api `:1.0` + `:latest`                |
+| 9   | Page Docker Hub `inventaire-api` (tags visibles)            |
+| 10  | `docker compose up` depuis dossier vide (pull des 2 images) |
+| 11  | `docker compose ps` distant + curl health/articles/stats    |
+| 12  | POST `HUB-001` + GET confirmant sa presence                 |

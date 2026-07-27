@@ -1,0 +1,35 @@
+# compose-hub.yml — Labo 2, Partie A (GitHub Codespaces)
+# Version 100 % Docker Hub : aucune construction, uniquement des images publiees.
+#   docker compose -f compose-hub.yml up -d
+services:
+  postgres:
+    image: ajc479/inventaire-postgres:1.0
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app_net
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ajc479/inventaire-api:1.1
+    env_file: .env
+    ports:
+      - "5000:5000"
+    networks:
+      - app_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+networks:
+  app_net:
+    driver: bridge
+
+volumes:
+  pgdata:

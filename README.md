@@ -68,6 +68,7 @@ curl http://localhost:5000/health
 curl http://localhost:5000/articles
 curl http://localhost:5000/articles/1
 curl http://localhost:5000/stats
+curl http://localhost:5000/version
 ```
 
 Creer un article:
@@ -97,8 +98,9 @@ curl -X DELETE http://localhost:5000/articles/6
 Remplacer les valeurs ci-dessous par les vrais noms Docker Hub.
 
 ```text
-postgres : ajc479/inventaire-postgres:1.0   (publie, public)
-api      : ETUDIANT2/inventaire-api:1.0      (a publier par Etudiant 2)
+postgres  : ajc479/inventaire-postgres:1.0   (publie, public)
+api v1.0  : ajc479/inventaire-api:1.0        (publie, public)
+api v1.1  : ajc479/inventaire-api:1.1        (route /version - Labo 2)
 ```
 
 Construction et tags:
@@ -171,5 +173,61 @@ Pour nettoyer completement:
 
 ```bash
 docker compose down -v
+```
+
+---
+
+# Laboratoire 2 - Deploiement distant
+
+Marche a suivre detaillee et liste des 14 preuves:
+[docs/labo2-deploiement-distant.md](docs/labo2-deploiement-distant.md)
+
+## URLs publiques
+
+```text
+API (Render) : https://inventaire-api-xxxx.onrender.com     <- a remplir
+Health       : https://inventaire-api-xxxx.onrender.com/health
+Articles     : https://inventaire-api-xxxx.onrender.com/articles
+Version      : https://inventaire-api-xxxx.onrender.com/version
+Codespace    : https://xxxx-5000.app.github.dev             <- temporaire
+```
+
+## Reproduire le deploiement Codespaces (Partie A)
+
+1. Ouvrir un Codespace sur ce depot (Code > Codespaces > Create codespace on main)
+2. `cp .env.example .env` puis remplir `POSTGRES_PASSWORD`
+3. `docker compose -f compose-hub.yml up -d`
+4. Onglet PORTS: port 5000 > Visibility > **Public**
+5. Tester: `https://xxxx-5000.app.github.dev/health`
+
+## Reproduire le deploiement Render (Partie B)
+
+1. Creer une base PostgreSQL sur render.com (plan Free)
+2. Executer `services/postgres/init/01_schema.sql` dans le shell psql Render
+3. Creer un Web Service avec l'image `ajc479/inventaire-api:1.1`
+4. Configurer les variables d'environnement (voir `.env.render.example`)
+5. Tester: `https://inventaire-api-xxxx.onrender.com/health`
+
+Raccourci: New + > Blueprint > ce depot. `render.yaml` cree la base et le
+service et branche les variables automatiquement.
+
+## Tester une API distante
+
+```powershell
+.\scripts\test-api-distante.ps1 -BaseUrl https://VOTRE-URL -Reference RENDER-001
+```
+
+```bash
+./scripts/test-api-distante.sh https://VOTRE-URL RENDER-001
+```
+
+Les deux scripts enchainent health, GET, POST 201, GET de verification, stats
+et version, et ecrivent le journal dans `docs/preuves/`.
+
+## Mettre a jour l'API
+
+```powershell
+.\scripts\publier-v1.1.ps1 -Tag 1.2
+# puis Render > Web Service > Settings > Image URL -> ajc479/inventaire-api:1.2
 ```
 

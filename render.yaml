@@ -1,0 +1,48 @@
+# render.yaml — Labo 2, Partie B (Render.com)
+# Blueprint optionnel : cree la base + le Web Service d'un coup.
+# Dashboard Render > New + > Blueprint > choisir ce depot.
+# (La creation manuelle decrite dans docs/labo2-deploiement-distant.md
+#  donne exactement le meme resultat.)
+databases:
+  - name: inventaire-db
+    databaseName: inventaire
+    user: admin
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: inventaire-api
+    runtime: image
+    plan: free
+    region: oregon
+    image:
+      url: docker.io/ajc479/inventaire-api:1.1
+    healthCheckPath: /health
+    envVars:
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: inventaire-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: inventaire-db
+          property: port
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: inventaire-db
+          property: database
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: inventaire-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: inventaire-db
+          property: password
+      - key: POSTGRES_SSLMODE
+        value: require
+      - key: API_PORT
+        value: 5000
+      - key: FLASK_ENV
+        value: production
