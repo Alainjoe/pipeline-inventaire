@@ -182,15 +182,22 @@ docker compose down -v
 Marche a suivre detaillee et liste des 14 preuves:
 [docs/labo2-deploiement-distant.md](docs/labo2-deploiement-distant.md)
 
+Equipe : Alain Joseph Camara (postgres) et Djooliany Dor (api).
+
 ## URLs publiques
 
 ```text
-API (Render) : https://inventaire-api-xxxx.onrender.com     <- a remplir
-Health       : https://inventaire-api-xxxx.onrender.com/health
-Articles     : https://inventaire-api-xxxx.onrender.com/articles
-Version      : https://inventaire-api-xxxx.onrender.com/version
-Codespace    : https://xxxx-5000.app.github.dev             <- temporaire
+API (Render) : https://inventaire-api-1-1.onrender.com
+Health       : https://inventaire-api-1-1.onrender.com/health
+Articles     : https://inventaire-api-1-1.onrender.com/articles
+Version      : https://inventaire-api-1-1.onrender.com/version
+Stats        : https://inventaire-api-1-1.onrender.com/stats
+Codespace    : https://<nom-codespace>-5000.app.github.dev  (temporaire, change
+               a chaque session ; port 5000 a passer en Public dans l'onglet PORTS)
 ```
+
+Base de donnees Render : `inventaire-db`, base `inventaire_mixx`, region Oregon,
+plan Free (expire le 27 aout 2026).
 
 ## Reproduire le deploiement Codespaces (Partie A)
 
@@ -202,11 +209,25 @@ Codespace    : https://xxxx-5000.app.github.dev             <- temporaire
 
 ## Reproduire le deploiement Render (Partie B)
 
-1. Creer une base PostgreSQL sur render.com (plan Free)
-2. Executer `services/postgres/init/01_schema.sql` dans le shell psql Render
-3. Creer un Web Service avec l'image `ajc479/inventaire-api:1.1`
-4. Configurer les variables d'environnement (voir `.env.render.example`)
-5. Tester: `https://inventaire-api-xxxx.onrender.com/health`
+1. Creer une base PostgreSQL sur render.com (plan Free), region Oregon.
+   Noter le nom reel de la base : Render ajoute un suffixe (`inventaire_mixx`).
+2. Injecter `services/postgres/init/01_schema.sql`. Le shell psql dans le
+   navigateur n'existe plus sur le plan Free : passer par un conteneur, avec
+   l'**External Host** (le nom long) et `PGSSLMODE=require`.
+
+```powershell
+$env:PGPASSWORD="<mot de passe Render>"
+$env:PGHOST="dpg-xxxxx.oregon-postgres.render.com"
+Get-Content services/postgres/init/01_schema.sql | docker run --rm -i `
+  -e PGPASSWORD=$env:PGPASSWORD -e PGSSLMODE=require postgres:16 `
+  psql -h $env:PGHOST -U admin -d inventaire_mixx
+```
+
+3. Creer un Web Service > Existing Image : `docker.io/ajc479/inventaire-api:1.1`,
+   meme region que la base, plan Free, Health Check Path `/health`.
+4. Variables d'environnement (voir `.env.render.example`). Ne pas definir
+   `API_PORT` : Render injecte `PORT`, que `app.py` prend en priorite.
+5. Tester: `https://inventaire-api-1-1.onrender.com/health`
 
 Raccourci: New + > Blueprint > ce depot. `render.yaml` cree la base et le
 service et branche les variables automatiquement.
